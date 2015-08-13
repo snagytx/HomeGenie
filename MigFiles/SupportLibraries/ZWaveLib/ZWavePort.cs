@@ -147,7 +147,7 @@ namespace ZWaveLib
                     serialPort.SendMessage(message.Message);
                     //
                     // wait for any previous message callback response
-                    int maxWait = 50; // 5 seconds max wait
+                    int maxWait = 150; // 15 seconds max wait
                     while (pendingMessages.Contains(message) && maxWait > 0)
                     {
                         Thread.Sleep(100);
