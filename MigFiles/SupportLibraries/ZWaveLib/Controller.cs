@@ -800,10 +800,9 @@ namespace ZWaveLib
                             {
                                 for (int bi = 0; bi < 8; bi++)
                                 {
-                                    int result = args.Message[4 + by] & (0x01 << bi);
-                                    if (result > 0)
-                                    {
-                                        int nodeRoute = (by << 3) + bi + 1;
+                                    int nodeRoute = (by << 3) + bi + 1;
+                                    if (nodeRoute > 0)
+                                    {                                        
                                         nodeRouting += nodeRoute.ToString() + " ";
                                     }
                                 }
