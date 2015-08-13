@@ -14,6 +14,7 @@ namespace ZWaveLib
         GetNodeProtocolInfo = 0x41,
         ControllerSetDefault = 0x42,
 
+        DeleteReturnRoute = 0x47,
         NodeNeighborUpdate = 0x48,
 
         // hard reset

@@ -166,6 +166,9 @@ namespace ZWaveLib
                 0x00,
                 0x00
             });
+
+            NeighborsDeleteReturnRoute(node);
+
         }
 
         public void NeighborsUpdateNode(ZWaveNode node)
@@ -193,6 +196,19 @@ namespace ZWaveLib
                 0x00,
                 0x03,
                 0x00    
+            });
+        }
+
+        public void NeighborsDeleteReturnRoute(ZWaveNode node)
+        {
+            node.SendMessage(new byte[] {
+                (byte)MessageHeader.SOF,
+                0x05, /* packet length */
+                (byte)MessageType.Request, /* Type of message */
+                (byte)Function.DeleteReturnRoute,
+                node.Id,
+                0x00,
+                0x00   
             });
         }
 
@@ -689,23 +705,6 @@ namespace ZWaveLib
                                     }
                                 }
                             }
-                            else if (commandType == 0x21)
-                            {
-                                // Neighbour Update Options STARTED
-                                var message = zwavePort.GetPendingMessage(commandId);
-                                // TODO: don't know what to do here...
-                            }
-                            else if (commandType == 0x22)
-                            {
-                                // Neighbour Update Options COMPLETE
-                                var message = zwavePort.GetPendingMessage(commandId);
-                                if (message != null)
-                                {
-                                    NeighborsUpdateNode(message.Node);
-                                    // send ack so the message is removed from the pending message list
-                                    zwavePort.NodeRequestAck(commandId);
-                                }
-                            }
                             break;
 
                         case Function.NodeUpdateInfo:
@@ -752,6 +751,7 @@ namespace ZWaveLib
                                     var pm = zwavePort.GetPendingMessage(args.Message[4]);
                                     if (pm != null)
                                     {
+                                        // 
                                         NeighborsGetRoutingInfo(pm.Node);
                                         // send ack so the message is removed from the pending message list
                                         zwavePort.NodeRequestAck(pm.CallbackId);
@@ -800,9 +800,11 @@ namespace ZWaveLib
                             {
                                 for (int bi = 0; bi < 8; bi++)
                                 {
-                                    int nodeRoute = (by << 3) + bi + 1;
-                                    if (nodeRoute > 0)
-                                    {                                        
+                                    int result = args.Message[4 + by] & (0x01 << bi);
+                                    Utility.DebugLog(DebugMessageType.Warning, "GetRoutingInfo: " + result);
+                                    if (result > 0)
+                                    {
+                                        int nodeRoute = (by << 3) + bi + 1;
                                         nodeRouting += nodeRoute.ToString() + " ";
                                     }
                                 }
@@ -817,7 +819,9 @@ namespace ZWaveLib
                                 // TODO: lookup the node and then use node.RaiseUpdateParameterEvent to store the node routing info in a node parameter
                                 Utility.DebugLog(DebugMessageType.Warning, "Reported Nodes: " + nodeRouting);
                             }
+
                             break;
+
                         default:
                             Utility.DebugLog(DebugMessageType.Warning, "Unhandled RESPONSE " + Utility.ByteArrayToString(args.Message));
                             break;

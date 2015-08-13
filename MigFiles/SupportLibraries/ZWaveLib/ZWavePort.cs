@@ -161,7 +161,7 @@ namespace ZWaveLib
                 pendingMessages.RemoveAll(zm =>
                 {
                     TimeSpan ttl = new TimeSpan(DateTime.UtcNow.Ticks - zm.Timestamp.Ticks);
-                    if (ttl.TotalSeconds >= 5)
+                    if (ttl.TotalSeconds >= 15)
                     {
                         return true;
                     }
